@@ -561,21 +561,21 @@ void handleCurrentMine() {
 		return;
 	}
 	
-	while (cheapestCounter != -1) {
-		Spot cheapestSpot = findSpotByCounter(cheapestCounter);
-		if (cheapestSpot.costToGetTo > 2) {
-			currentOperation.numCavesSkipped += 1;
-			if (count(currentMine.emptySpots) == 0)
-				mineSpot(currentMine.spots[1][6]);
-			return;
-		}
-		mineToSpot(cheapestSpot);
-		if (currentMine.goldFound > 0)
-			break;
-		cheapestCounter = findCheapestSpot(currentMine.nearInterestingSpots);
-	}
-
 	if (mineVelvet == true) {
+		while (cheapestCounter != -1) {
+			Spot cheapestSpot = findSpotByCounter(cheapestCounter);
+			if (cheapestSpot.costToGetTo > 2) {
+				currentOperation.numCavesSkipped += 1;
+				if (count(currentMine.emptySpots) == 0)
+					mineSpot(currentMine.spots[1][6]);
+				return;
+			}
+			mineToSpot(cheapestSpot);
+			if (currentMine.goldFound > 0)
+				break;
+			cheapestCounter = findCheapestSpot(currentMine.nearInterestingSpots);
+		}
+
 		if ((currentMine.velvetFound > 0) || (currentMine.goldFound == 0))
 		{
 			if (currentMine.currentLongestChain.entryPoint.costToGetTo > 2) {
