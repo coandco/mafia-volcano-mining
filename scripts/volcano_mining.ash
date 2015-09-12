@@ -61,6 +61,7 @@ record MiningOperation {
 	int numCaveIns;
 	int numOilyLegsAtStart;
 	int startTime;
+	int startAdvs;
 };
 
 Spot newSpot(int counter, int col, int row) {
@@ -136,6 +137,7 @@ void endMiningOperation() {
 	int numGold = item_amount($item[1,970 carat gold]) - currentOperation.startingNumGold;
 	int numVelvet = item_amount($item[unsmoothed velvet]) - currentOperation.startingNumVelvet;
 	int numCrystals = item_amount($item[New Age healing crystal]) - currentOperation.startingNumCrystals;
+	int numTurns = currentOperation.startAdvs - my_adventures();
 
 	int numMSTaken = gametime_to_int() - currentOperation.startTime;
 	float numSecondsTaken = numMSTaken / 1000;
@@ -147,6 +149,7 @@ void endMiningOperation() {
 	print("Number of " + $item[1,970 carat gold] + " found: " + numGold, "blue");
 	print("Number of " + $item[New Age healing crystal] + " found: " + numCrystals, "blue");
 	print("Number of seconds it took: " + numSecondsTaken, "blue");
+	print("Number of turns used: " + numTurns, "blue");
 }
 
 void abortMining(string reason) {
@@ -617,6 +620,7 @@ void initMiningOperations() {
 	currentOperation.numCavesSkipped = 0;
 	currentOperation.numCavesFullyExplored = 0;
 	currentOperation.startTime = gametime_to_int();	
+	currentOperation.startAdvs = my_adventures();
 }
 
 void main() {
