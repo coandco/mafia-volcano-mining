@@ -141,6 +141,9 @@ void endMiningOperation() {
 
 	int numMSTaken = gametime_to_int() - currentOperation.startTime;
 	float numSecondsTaken = numMSTaken / 1000;
+	float turnsPerGold = 0;
+	if (numGold > 0)
+		turnsPerGold = to_float(numTurns)/to_float(numGold);
 	
 	print("Number of Fully Explored Caves: " + currentOperation.numCavesFullyExplored, "blue");
 	print("Number of Caves skipped because of turn expense: " + currentOperation.numCavesSkipped, "blue");
@@ -150,6 +153,7 @@ void endMiningOperation() {
 	print("Number of " + $item[New Age healing crystal] + " found: " + numCrystals, "blue");
 	print("Number of seconds it took: " + numSecondsTaken, "blue");
 	print("Number of turns used: " + numTurns, "blue");
+	print("Average turns per gold: " + turnsPerGold, "blue");
 }
 
 void abortMining(string reason) {
