@@ -623,7 +623,9 @@ void initMiningOperations() {
 	currentOperation.startAdvs = my_adventures();
 }
 
-void main() {
+void main(int turnsToMine) {
+	if (turnsToMine != 0)
+		numTurnsToLeave = my_adventures() - turnsToMine;
 	initMiningOperations();
 
 	int counter = 0;
