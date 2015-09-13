@@ -627,9 +627,10 @@ void initMiningOperations() {
 	currentOperation.startAdvs = my_adventures();
 }
 
-void main(int turnsToMine) {
+void main(int turnsToMine, boolean lookForVelvet) {
 	if (turnsToMine != 0)
 		numTurnsToLeave = my_adventures() - turnsToMine;
+	mineVelvet = lookForVelvet;
 	initMiningOperations();
 
 	int counter = 0;
