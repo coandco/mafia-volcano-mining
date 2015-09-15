@@ -13,6 +13,8 @@ int numTurnsToLeave = 5;//How many turns you want to have left when finished min
 
 int delayBetweenMines = 0;//In seconds, This will allow you to add delays after each mining attempt, used to spread out server load espically if you are starting script and letting it run while you go do other things and don't care when it finishes
 
+boolean autoUpDetection = false; //Automatically use potions of detection before attempting to parse a mine?
+
 boolean useMafiaRestore = true;//Whether to use kol's healing script, if set to false will attempt custom logic to heal a point
 
 //Determines if you will use a healing skill or just go to docs, a value of $skill[none] means goto doc, otherwise attempt to use skill provided, if that doesn't work then it will still go to docs
@@ -281,6 +283,8 @@ void updateHeatmapFromSpot(Spot startSpot) {
 
 void parseMine() {
 	//string page = visit_url("place.php?whichplace=desertbeach&action=db_crimbo14mine");
+	if ((have_effect($effect[object detection]) == 0) && (autoUpDetection == true))
+		cli_execute("use potion of detection");
 	buffer page = visit_url("mining.php?mine=6");
 	if (page.contains_text("<table cellpadding=0 cellspacing=0 border=0 background=")) {
 		page.substring(page.index_of("<table cellpadding=0 cellspacing=0 border=0 background="));
@@ -544,7 +548,7 @@ int findCheapestSpot(Spot[int] listOfSpots) {
 }
 
 void handleCurrentMine() {
-	if (have_effect($effect[object detection]) == 0) {
+	if (have_effect($effect[object detection]) == 0 && !autoUpDetection) {
 		abortMining("This script requires that you have the " + $effect[object detection] + " effect active while starting the mining process");
 	}
 
@@ -627,10 +631,11 @@ void initMiningOperations() {
 	currentOperation.startAdvs = my_adventures();
 }
 
-void main(int turnsToMine, boolean lookForVelvet) {
+void main(int turnsToMine, boolean lookForVelvet, boolean autoDetection) {
 	if (turnsToMine != 0)
 		numTurnsToLeave = my_adventures() - turnsToMine;
 	mineVelvet = lookForVelvet;
+	autoUpDetection = autoDetection;
 	initMiningOperations();
 
 	int counter = 0;
