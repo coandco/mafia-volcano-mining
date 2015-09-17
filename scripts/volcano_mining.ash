@@ -2,25 +2,49 @@ script "volcano_mining.ash";
 notify CrankyOne;
 since r15029;
 
+import <zlib.ash>;
+
 string version = "1.0";
 
-int maxFailsAllowed = 1; //How much bigger a set of continout interesting points can be more then 6, if you were to explore all in bigger chains, you are guarnteed a cave in
-int maxCaves = 200; //Max caves to check against, mainly to solve for infinite loops just in case
+// These global initializations now just set defaults.  To change actual values,
+// type "zlib <varName> = <value>" or modify data/vars_yourname.txt
 
-boolean mineVelvet = true;
+//Max caves to check against, mainly to solve for infinite loops just in case
+setvar("vmine_maxCaves", 200);
+int MAX_CAVES = to_int(vars["vmine_maxCaves"]);
 
-int numTurnsToLeave = 5;//How many turns you want to have left when finished mining, only applies if requireFreeMining=false
+//Name of the outfit to switch to for mining
+setvar("vmine_outfit", "Volcano Mining");
+string MINING_OUTFIT = vars["vmine_outfit"];
 
-int delayBetweenMines = 0;//In seconds, This will allow you to add delays after each mining attempt, used to spread out server load espically if you are starting script and letting it run while you go do other things and don't care when it finishes
+//Specifically try to mine all the velvet if true, only incidental velvet mining if false
+setvar("vmine_mineVelvet", true);
+boolean MINE_VELVET = to_boolean(vars["vmine_mineVelvet"]);
 
-boolean autoUpDetection = false; //Automatically use potions of detection before attempting to parse a mine?
+//How many turns you want to have left when finished mining
+setvar("vmine_numTurnsToLeave", 5);
+int NUM_TURNS_TO_LEAVE = to_int(vars["vmine_numTurnsToLeave"]);
 
-boolean useMafiaRestore = true;//Whether to use kol's healing script, if set to false will attempt custom logic to heal a point
+//In seconds, This will allow you to add delays after each mining attempt, used
+//to spread out server load especially if you are starting script and letting
+//it run while you go do other things and don't care when it finishes
+setvar("vmine_delayBetweenMines", 0);
+int DELAY_BETWEEN_MINES = to_int(vars["vmine_delayBetweenMines"]);
+
+//Automatically use potions of detection before attempting to parse a mine if true
+setvar("vmine_autoUpDetection", true);
+boolean AUTO_UP_DETECTION = to_boolean(vars["vmine_autoUpDetection"]);
+
+//Whether to use kol's healing script, if set to false will attempt custom logic to heal a point
+setvar("vmine_useMafiaRestore", true);
+boolean USE_MAFIA_RESTORE = to_boolean(vars["vmine_useMafiaRestore"]);
 
 //Determines if you will use a healing skill or just go to docs, a value of $skill[none] means goto doc, otherwise attempt to use skill provided, if that doesn't work then it will still go to docs
-skill healingSkill = $skill[none];//Note only used if useMafiaRestore = false;
-//copy and paste one of these skills over $skill[none] to try to use that skill before heading to docs, should work with non-listed skills just adding them for ease of use
-//$skill[saucy salve], $skill[lasagna bandages], $skill[tongue of the walrus], $skill[cannelloni cocoon], $skill[shake it off] 
+//Note only used if useMafiaRestore = false;
+setvar("vmine_healingSkill", "none");
+skill HEALING_SKILL = vars["vmine_healingSkill"].to_skill();
+//Some example skills to set vmine_healingSkill to
+//"lasagna bandages", "tongue of the walrus", "cannelloni cocoon", "shake it off"
 
 record Spot {
 	int row;
@@ -114,19 +138,21 @@ string printSpot(Spot currentSpot) {
 }
 
 void restoreMinHP() {
-	if (useMafiaRestore) {
+	if (USE_MAFIA_RESTORE) {
 		restore_hp(1);
-	} else if (healingSkill != $skill[none]) {
+	} else if (HEALING_SKILL != $skill[none]) {
 		//Attempt to use skill
-		if (my_mp() > mp_cost(healingSkill))
-			use_skill(healingSkill);
+		if (my_mp() > mp_cost(HEALING_SKILL))
+			use_skill(HEALING_SKILL);
 	}
 	
 	if (my_hp() == 0) {
-		if (my_meat() < 10)
-			abort("Don't have enought meat to heal");
+		//if (my_meat() < 10)
+		//	abort("Don't have enought meat to heal");
 			
-		cli_execute("galaktik hp 1"); //Thanks to Ezandora for pointing this out.
+		//"galaktik" isn't a valid CLI command now.  Commenting this out.
+		//cli_execute("galaktik hp 1"); //Thanks to Ezandora for pointing this out.
+		abort("No valid healing options chosen");
 	}
 }
 
@@ -283,7 +309,7 @@ void updateHeatmapFromSpot(Spot startSpot) {
 
 void parseMine() {
 	//string page = visit_url("place.php?whichplace=desertbeach&action=db_crimbo14mine");
-	if ((have_effect($effect[object detection]) == 0) && (autoUpDetection == true))
+	if ((have_effect($effect[object detection]) == 0) && (AUTO_UP_DETECTION == true))
 		cli_execute("use potion of detection");
 	buffer page = visit_url("mining.php?mine=6");
 	if (page.contains_text("<table cellpadding=0 cellspacing=0 border=0 background=")) {
@@ -397,7 +423,7 @@ void mineSpot(Spot spotToMine) {
 	if (spotToMine.mined == true)
 	    return; //Make attempts to mine empty squares into no-ops
 
-	if (my_adventures() <= numTurnsToLeave)
+	if (my_adventures() <= NUM_TURNS_TO_LEAVE)
 		abortMining("At minimum number of turns left");
 	
 	string result = visit_url("mining.php?mine=6&which=" + spotToMine.counter + "&pwd");
@@ -423,8 +449,8 @@ void mineSpot(Spot spotToMine) {
 	updateHeatmapFromSpot(spotToMine);
 
 	
-	if ( delayBetweenMines > 0 )
-		waitq(delayBetweenMines);
+	if ( DELAY_BETWEEN_MINES > 0 )
+		waitq(DELAY_BETWEEN_MINES);
 }
 
 void mineChainSpot(Spot spotToMine) {
@@ -548,7 +574,7 @@ int findCheapestSpot(Spot[int] listOfSpots) {
 }
 
 void handleCurrentMine() {
-	if (have_effect($effect[object detection]) == 0 && !autoUpDetection) {
+	if (have_effect($effect[object detection]) == 0 && !AUTO_UP_DETECTION) {
 		abortMining("This script requires that you have the " + $effect[object detection] + " effect active while starting the mining process");
 	}
 
@@ -557,7 +583,7 @@ void handleCurrentMine() {
 	calculateLongestChain(); //Then calculate longest chain
 
 	printMine();
-	printPaths();
+	//printPaths();
 
 	// Look for sparkles in the first three rows
 	int cheapestCounter = findCheapestSpot(currentMine.nearInterestingSpots);
@@ -569,7 +595,7 @@ void handleCurrentMine() {
 		return;
 	}
 	
-	if (mineVelvet == true) {
+	if (MINE_VELVET == true) {
 		while (cheapestCounter != -1) {
 			Spot cheapestSpot = findSpotByCounter(cheapestCounter);
 			if (cheapestSpot.costToGetTo > 2) {
@@ -618,7 +644,7 @@ void handleCurrentMine() {
 
 void initMiningOperations() {
 	cli_execute("outfit save Backup");
-	outfit("Volcano Mining");
+	outfit(MINING_OUTFIT);
 	
 	currentOperation = new MiningOperation();
 	currentOperation.startingNumGold = item_amount($item[1,970 carat gold]);
@@ -631,21 +657,41 @@ void initMiningOperations() {
 	currentOperation.startAdvs = my_adventures();
 }
 
-void main(int turnsToMine, boolean lookForVelvet, boolean autoDetection) {
-	if (turnsToMine != 0)
-		numTurnsToLeave = my_adventures() - turnsToMine;
-	mineVelvet = lookForVelvet;
-	autoUpDetection = autoDetection;
+void mine_volcano() {
 	initMiningOperations();
 
 	int counter = 0;
 	
-	while(counter < maxCaves && my_adventures() > 0) {
+	while(counter < MAX_CAVES && my_adventures() > 0) {
 		gotoNextMine();
 		handleCurrentMine();
 		counter += 1;
 	}
 
-	//handleCurrentMine();
 	endMiningOperation();	
+}
+
+void mine_volcano(int turnsToMine, boolean lookForVelvet, boolean autoDetection) {
+	if (turnsToMine != 0)
+		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
+	MINE_VELVET = lookForVelvet;
+	AUTO_UP_DETECTION = autoDetection;
+	mine_volcano();
+}
+
+void mine_volcano(int turnsToMine, boolean lookForVelvet, boolean autoDetection, string outfit) {
+	if (turnsToMine != 0)
+		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
+	MINE_VELVET = lookForVelvet;
+	AUTO_UP_DETECTION = autoDetection;
+	MINING_OUTFIT = outfit;
+	mine_volcano();
+}
+
+void main(int turnsToMine, boolean lookForVelvet, boolean autoDetection) {
+	if (turnsToMine != 0)
+		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
+	MINE_VELVET = lookForVelvet;
+	AUTO_UP_DETECTION = autoDetection;
+	mine_volcano();
 }
