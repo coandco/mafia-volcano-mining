@@ -46,6 +46,9 @@ skill HEALING_SKILL = vars["vmine_healingSkill"].to_skill();
 //Some example skills to set vmine_healingSkill to
 //"lasagna bandages", "tongue of the walrus", "cannelloni cocoon", "shake it off"
 
+//Variable to let the script abort mining without calling abort()
+boolean doneMining = false;
+
 record Spot {
 	int row;
 	int col;
@@ -604,6 +607,11 @@ void handleCurrentMine() {
 					mineSpot(currentMine.spots[1][6]);
 				return;
 			}
+			if ((my_adventures() - NUM_TURNS_TO_LEAVE) < cheapestSpot.costToGetTo) {
+				currentOperation.numCavesSkipped += 1;
+				doneMining = true;
+				return;
+			}
 			mineToSpot(cheapestSpot);
 			if (currentMine.goldFound > 0)
 				break;
@@ -612,13 +620,17 @@ void handleCurrentMine() {
 
 		if ((currentMine.velvetFound > 0) || (currentMine.goldFound == 0))
 		{
+			figureRoute();
 			if (currentMine.currentLongestChain.entryPoint.costToGetTo > 2) {
 				currentOperation.numCavesSkipped += 1;
 				if (count(currentMine.emptySpots) == 0)
 					mineSpot(currentMine.spots[1][6]);
 				return;
+			} else if ((currentMine.currentLongestChain.entryPoint.costToGetTo + 6) > (my_adventures() - NUM_TURNS_TO_LEAVE)) {
+				currentOperation.numCavesSkipped += 1;
+				doneMining = true;
+				return;
 			} else {
-				figureRoute();
 				handleRoute();
 			}
 		}
@@ -632,6 +644,11 @@ void handleCurrentMine() {
 				currentOperation.numCavesSkipped += 1;
 				if (count(currentMine.emptySpots) == 0)
 					mineSpot(currentMine.spots[1][6]);
+				return;
+			}
+			if ((my_adventures() - NUM_TURNS_TO_LEAVE) < cheapestSpot.costToGetTo) {
+				currentOperation.numCavesSkipped += 1;
+				doneMining = true;
 				return;
 			}
 			mineToSpot(cheapestSpot);
@@ -664,7 +681,7 @@ void mine_volcano() {
 
 	int counter = 0;
 	
-	while(counter < MAX_CAVES && my_adventures() > 0) {
+	while(counter < MAX_CAVES && my_adventures() > 0 && !doneMining) {
 		gotoNextMine();
 		handleCurrentMine();
 		counter += 1;
