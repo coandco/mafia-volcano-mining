@@ -630,6 +630,8 @@ void handleCurrentMine() {
 			Spot cheapestSpot = findSpotByCounter(cheapestCounter);
 			if (cheapestSpot.costToGetTo > 2) {
 				currentOperation.numCavesSkipped += 1;
+				if (count(currentMine.emptySpots) == 0)
+					mineSpot(currentMine.spots[1][6]);
 				return;
 			}
 			mineToSpot(cheapestSpot);
