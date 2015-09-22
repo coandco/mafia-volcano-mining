@@ -315,6 +315,10 @@ void parseMine() {
 	if ((have_effect($effect[object detection]) == 0) && (AUTO_UP_DETECTION == true))
 		cli_execute("use potion of detection");
 	buffer page = visit_url("mining.php?mine=6");
+	if (page.contains_text("way too beaten up")) {
+		restoreMinHP();
+		page = visit_url("mining.php?mine=6");
+	}
 	if (page.contains_text("<table cellpadding=0 cellspacing=0 border=0 background=")) {
 		page.substring(page.index_of("<table cellpadding=0 cellspacing=0 border=0 background="));
 		for counter from 0 to 54 {
