@@ -169,6 +169,7 @@ void endMiningOperation() {
 	int numVelvet = item_amount($item[unsmoothed velvet]) - currentOperation.startingNumVelvet;
 	int numCrystals = item_amount($item[New Age healing crystal]) - currentOperation.startingNumCrystals;
 	int numTurns = currentOperation.startAdvs - my_adventures();
+	int amtProfit = numGold * 19700;
 
 	int numMSTaken = gametime_to_int() - currentOperation.startTime;
 	float numSecondsTaken = numMSTaken / 1000;
@@ -185,6 +186,7 @@ void endMiningOperation() {
 	print("Number of seconds it took: " + numSecondsTaken, "blue");
 	print("Number of turns used: " + numTurns, "blue");
 	print("Average turns per gold: " + turnsPerGold, "blue");
+	print("Total autosale price of gold: " + amtProfit, "blue");
 }
 
 void abortMining(string reason) {
