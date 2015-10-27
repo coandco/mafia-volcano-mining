@@ -323,6 +323,8 @@ void parseMine() {
 		restoreMinHP();
 		page = visit_url("mining.php?mine=6");
 	}
+	if (!page.contains_text("Mining a chunk of the cavern wall takes one Adventure."))
+		abort("Unable to access the Velvet/Gold Mine.  Please manually verify that you can get to it.");
 	if (page.contains_text("<table cellpadding=0 cellspacing=0 border=0 background=")) {
 		page.substring(page.index_of("<table cellpadding=0 cellspacing=0 border=0 background="));
 		for counter from 0 to 54 {
