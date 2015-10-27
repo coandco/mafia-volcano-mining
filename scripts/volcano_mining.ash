@@ -142,9 +142,9 @@ string printSpot(Spot currentSpot) {
 
 void restoreMinHP() {
 	if (USE_MAFIA_RESTORE) {
-		restore_hp(1);
-		//Trigger Mafia's MP restoration
+		//Trigger Mafia's MP and HP restoration
 		restore_mp(0);
+		restore_hp(1);
 	} else if (HEALING_SKILL != $skill[none]) {
 		//Attempt to use skill
 		if (my_mp() > mp_cost(HEALING_SKILL))
