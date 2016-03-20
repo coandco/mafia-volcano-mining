@@ -17,9 +17,9 @@ int MAX_CAVES = to_int(vars["vmine_maxCaves"]);
 setvar("vmine_outfit", "Volcano Mining");
 string MINING_OUTFIT = vars["vmine_outfit"];
 
-//Specifically try to mine all the velvet if true, only incidental velvet mining if false
-setvar("vmine_mineVelvet", true);
-boolean MINE_VELVET = to_boolean(vars["vmine_mineVelvet"]);
+//Only mine direct sparkles in the first two rows if true, mine until gold if false
+setvar("vmine_lazyFarm", false);
+boolean LAZY_FARM = to_boolean(vars["vmine_lazyFarm"]);
 
 //How many turns you want to have left when finished mining
 setvar("vmine_numTurnsToLeave", 5);
@@ -343,7 +343,7 @@ void parseMine() {
 					
 					if (page.contains_text("Promising Chunk of Wall (" + colNdx + "," + rowNdx + ")")) {
 						currentMine.interestingSpots[count(currentMine.interestingSpots)] = newSpot;
-						if (rowNdx > 3)
+						if (rowNdx > 4)
 							currentMine.nearInterestingSpots[count(currentMine.nearInterestingSpots)] = newSpot;
 						newSpot.isInteresting = true;
 					}
@@ -601,17 +601,17 @@ void handleCurrentMine() {
 	// Look for sparkles in the first three rows
 	int cheapestCounter = findCheapestSpot(currentMine.nearInterestingSpots);
 
-	// No sparkles in first three rows
+	// No sparkles in first two rows
 	if (cheapestCounter == -1) {
 		currentOperation.numCavesSkipped += 1;
 		mineSpot(currentMine.spots[1][6]);
 		return;
 	}
 	
-	if (MINE_VELVET == true) {
+	if (LAZY_FARM == true) {
 		while (cheapestCounter != -1) {
 			Spot cheapestSpot = findSpotByCounter(cheapestCounter);
-			if (cheapestSpot.costToGetTo > 2) {
+			if (cheapestSpot.costToGetTo > 1) {
 				currentOperation.numCavesSkipped += 1;
 				if (count(currentMine.emptySpots) == 0)
 					mineSpot(currentMine.spots[1][6]);
@@ -627,26 +627,7 @@ void handleCurrentMine() {
 				break;
 			cheapestCounter = findCheapestSpot(currentMine.nearInterestingSpots);
 		}
-
-		if ((currentMine.velvetFound > 0) || (currentMine.goldFound == 0))
-		{
-			figureRoute();
-			if (currentMine.currentLongestChain.entryPoint.costToGetTo > 2) {
-				currentOperation.numCavesSkipped += 1;
-				if (count(currentMine.emptySpots) == 0)
-					mineSpot(currentMine.spots[1][6]);
-				return;
-			} else if ((currentMine.currentLongestChain.entryPoint.costToGetTo + 6) > (my_adventures() - NUM_TURNS_TO_LEAVE)) {
-				currentOperation.numCavesSkipped += 1;
-				doneMining = true;
-				return;
-			} else {
-				handleRoute();
-			}
-		}
-	}
-
-	if (currentMine.goldFound == 0) {
+	} else {
 		cheapestCounter = findCheapestSpot(currentMine.interestingSpots);
 		while (cheapestCounter != -1) {
 			Spot cheapestSpot = findSpotByCounter(cheapestCounter);
@@ -700,27 +681,27 @@ void mine_volcano() {
 	endMiningOperation();	
 }
 
-void mine_volcano(int turnsToMine, boolean lookForVelvet, boolean autoDetection) {
+void mine_volcano(int turnsToMine, boolean lazyFarm, boolean autoDetection) {
 	if (turnsToMine != 0)
 		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
-	MINE_VELVET = lookForVelvet;
+	LAZY_FARM = lazyFarm;
 	AUTO_UP_DETECTION = autoDetection;
 	mine_volcano();
 }
 
-void mine_volcano(int turnsToMine, boolean lookForVelvet, boolean autoDetection, string outfit) {
+void mine_volcano(int turnsToMine, boolean lazyFarm, boolean autoDetection, string outfit) {
 	if (turnsToMine != 0)
 		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
-	MINE_VELVET = lookForVelvet;
+	LAZY_FARM = lazyFarm;
 	AUTO_UP_DETECTION = autoDetection;
 	MINING_OUTFIT = outfit;
 	mine_volcano();
 }
 
-void main(int turnsToMine, boolean lookForVelvet, boolean autoDetection) {
+void main(int turnsToMine, boolean lazyFarm, boolean autoDetection) {
 	if (turnsToMine != 0)
 		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
-	MINE_VELVET = lookForVelvet;
+	LAZY_FARM = lazyFarm;
 	AUTO_UP_DETECTION = autoDetection;
 	mine_volcano();
 }
