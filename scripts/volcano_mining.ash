@@ -17,6 +17,10 @@ int MAX_CAVES = to_int(vars["vmine_maxCaves"]);
 setvar("vmine_outfit", "Volcano Mining");
 string MINING_OUTFIT = vars["vmine_outfit"];
 
+//Re-apply mood while mining
+setvar("vmine_moodexec", false);
+boolean MINING_MOODEXEC = to_boolean(vars["vmine_moodexec"]);
+
 //Only mine direct sparkles in the first two rows if true, mine until gold if false
 setvar("vmine_lazyFarm", false);
 boolean LAZY_FARM = to_boolean(vars["vmine_lazyFarm"]);
@@ -461,6 +465,8 @@ void mineSpot(Spot spotToMine) {
 	currentMine.emptySpots[count(currentMine.emptySpots)] = spotToMine;
 	updateHeatmapFromSpot(spotToMine);
 
+	if ( MINING_MOODEXEC )
+		cli_execute("mood execute")
 	
 	if ( DELAY_BETWEEN_MINES > 0 )
 		waitq(DELAY_BETWEEN_MINES);
