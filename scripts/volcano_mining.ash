@@ -466,7 +466,7 @@ void mineSpot(Spot spotToMine) {
 	updateHeatmapFromSpot(spotToMine);
 
 	if ( MINING_MOODEXEC )
-		cli_execute("mood execute")
+		cli_execute("mood execute");
 	
 	if ( DELAY_BETWEEN_MINES > 0 )
 		waitq(DELAY_BETWEEN_MINES);
