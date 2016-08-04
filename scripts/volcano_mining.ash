@@ -10,7 +10,7 @@ string version = "1.0";
 // type "zlib <varName> = <value>" or modify data/vars_yourname.txt
 
 //Max caves to check against, mainly to solve for infinite loops just in case
-setvar("vmine_maxCaves", 200);
+setvar("vmine_maxCaves", 2000);
 int MAX_CAVES = to_int(vars["vmine_maxCaves"]);
 
 //Name of the outfit to switch to for mining
