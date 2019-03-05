@@ -583,6 +583,7 @@ int findCheapestSpot(Spot[int] listOfSpots) {
 	foreach spotNdx in listOfSpots {
 		if ((listOfSpots[spotNdx].costToGetTo < cheapestFound) && !listOfSpots[spotNdx].mined) {
 			cheapestSpot = listOfSpots[spotNdx];
+			cheapestFound = listOfSpots[spotNdx].costToGetTo;
 			foundViableSpot = true;
 		}
 	}
