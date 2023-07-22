@@ -579,6 +579,9 @@ void mineSingleSpot() {
 int findCheapestSpot(Spot[int] listOfSpots) {
 	int cheapestFound = 10000;
 	boolean foundViableSpot = false;
+	if (count(listOfSpots) == 0) {
+		return -1;
+	}
 	Spot cheapestSpot = listOfSpots[0];
 	foreach spotNdx in listOfSpots {
 		if ((listOfSpots[spotNdx].costToGetTo < cheapestFound) && !listOfSpots[spotNdx].mined) {
