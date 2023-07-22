@@ -705,10 +705,10 @@ void mine_volcano(int turnsToMine, boolean lazyFarm, boolean autoDetection, stri
 	mine_volcano();
 }
 
-void main(int turnsToMine, boolean lazyFarm, boolean autoDetection) {
+void main(int turnsToMine) {
 	if (turnsToMine != 0)
 		NUM_TURNS_TO_LEAVE = my_adventures() - turnsToMine;
-	LAZY_FARM = lazyFarm;
-	AUTO_UP_DETECTION = autoDetection;
+	// LAZY_FARM = lazyFarm;
+	// AUTO_UP_DETECTION = autoDetection;
 	mine_volcano();
 }
